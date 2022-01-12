@@ -2,12 +2,13 @@ package com.jihoon.musicplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +18,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Console;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<Model_playlist> List_Model_playlist = new ArrayList<Model_playlist>();
-    public Model_playlist favorites = new Model_playlist();
+    public Model_playlist favorites;
 
-    public int size_1dp;
+    public static int size_1dp;
 
     LinearLayout container_playlist;
     Context nowContext;
@@ -35,13 +35,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        container_playlist = findViewById(R.id.container_music);
+
         // dp -> pixel
         size_1dp = ConvertDPtoPX(this, 1);
 
         // 초기 플레이리스트 하나 만들어둠.
-        container_playlist = findViewById(R.id.container_playList);
+        favorites = new Model_playlist();
         favorites.name = "최애음악";
-        favorites.listOfMusic.add("Lucky You");
+        // 새 음악 만들기
+        Model_music newMusic = new Model_music();
+        newMusic.title = "Lucky You";
+        MusicListActivity.List_Model_music.add(newMusic);
+        // 플레이리스트에 음악 추가
+        favorites.listOfMusic.add(newMusic);
         List_Model_playlist.add(favorites);
 
         for(Model_playlist model_playlist: List_Model_playlist) {
@@ -56,17 +63,16 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), PlaylistActivity.class);
 
         for (Model_playlist model_playlist: List_Model_playlist) {
-            if (model_playlist.name == nameOfPlaylist)
+            if (model_playlist.name.equals(nameOfPlaylist))
             {
                 intent.putExtra("name", model_playlist.name);
-                intent.putExtra("listOfMusic", model_playlist.listOfMusic);
             }
         }
 
         // intent 확인용
-        String name = intent.getExtras().getString("name");
-        String newTag = "For checking intent";
-        Toast.makeText(this, name, Toast.LENGTH_LONG).show();
+//        String name = intent.getExtras().getString("name");
+//        String newTag = "For checking intent";
+//        Toast.makeText(this, name, Toast.LENGTH_LONG).show();
 
         startActivity(intent);
 
@@ -110,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         alert_newPlaylist.show();
     }
 
+    @SuppressLint("ResourceAsColor")
     public void MakeNewPlaylist(Model_playlist model_playlist) {
 
         LinearLayout linearLayout = new LinearLayout(this);
@@ -121,12 +128,16 @@ public class MainActivity extends AppCompatActivity {
         });
         // 레이아웃 방향 설정 방법!!
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size_1dp * 90));
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size_1dp * 70));
 
         ImageView imageView = new ImageView(this);
         imageView.setImageResource(R.drawable.music);
         // 휴우.. View의 크기 설정 방법!!
-        imageView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 90, ViewGroup.LayoutParams.MATCH_PARENT));
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 70, ViewGroup.LayoutParams.MATCH_PARENT));
+        // margin
+        LinearLayout.LayoutParams imageViewLayoutParams = (LinearLayout.LayoutParams)imageView.getLayoutParams();
+        int newMargin = MainActivity.size_1dp * 10;
+        imageViewLayoutParams.setMargins(newMargin,newMargin,newMargin,newMargin);
 
         TextView textView = new TextView(this);
         textView.setText(model_playlist.name);
@@ -138,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         // View의 Gravity 설정 방법!
         textView.setGravity(Gravity.CENTER_VERTICAL);
         textView.setTextSize(1,20);
+        textView.setTextColor(Color.BLACK);
 
         linearLayout.addView(imageView);
         linearLayout.addView(textView);

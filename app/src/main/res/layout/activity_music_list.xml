@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:orientation="vertical"
-    tools:context=".PlaylistActivity">
+    tools:context=".MusicListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +26,7 @@
             android:fontFamily="sans-serif"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="플레이리스트"
+            android:text="음악 추가하기"
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -37,8 +36,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="10dp"
-            android:background="@drawable/plus"
-            android:onClick="Click_button_newMusic" />
+            android:background="@drawable/ok"
+            android:onClick="Click_button_ok" />
 
     </LinearLayout>
 
@@ -52,4 +51,5 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
     </ScrollView>
+
 </LinearLayout>

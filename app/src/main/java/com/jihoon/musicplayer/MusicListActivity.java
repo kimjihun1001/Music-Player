@@ -2,73 +2,44 @@ package com.jihoon.musicplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PlaylistActivity extends AppCompatActivity {
+public class MusicListActivity extends AppCompatActivity {
 
+    public static ArrayList<Model_music> List_Model_music = new ArrayList<Model_music>();
     LinearLayout container_music;
-    TextView TextView_nameOfPlaylist;
+
+    public static ArrayList<CheckBox> List_CheckBox = new ArrayList<CheckBox>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playlist);
+        setContentView(R.layout.activity_music_list);
 
         container_music = findViewById(R.id.container_music);
-        TextView_nameOfPlaylist = findViewById(R.id.TextView_nameOfPlaylist);
 
-        // 상단 플레이리스트 제목
-        String nameOfPlaylist = getIntent().getExtras().getString("name");
-        TextView_nameOfPlaylist.setText(nameOfPlaylist);
+        // 전체 음악 리스트에 예시로 하나 추가함 -> 나중에 DB에서 받아오도록 해야 함.
+        Model_music newMusic = new Model_music();
+        newMusic.title = "Boss Bitch";
+        List_Model_music.add(newMusic);
 
-        // 음악 리스트
-        for(Model_playlist model_playlist: MainActivity.List_Model_playlist) {
-            // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
-            if (model_playlist.name.equals(nameOfPlaylist)) {
-                ShowMusicList(model_playlist);
-                break;
-            }
-        }
+        ShowAllMusicList();
+
     }
 
-    public void Click_button_back(View view) {
-        finish();
-    }
-
-    public void Click_button_newMusic(View view) {
-
-        String nameOfPlaylist = getIntent().getExtras().getString("name");
-        // 전체 음악 리스트를 보여주는 액티비티로 넘어가야 함.
-        Intent intent = new Intent(getApplicationContext(), MusicListActivity.class);
-
-        // 플레이리스트의 음악 리스트에 추가
-        for(Model_playlist model_playlist: MainActivity.List_Model_playlist) {
-            if (model_playlist.name.equals(nameOfPlaylist)) {
-                intent.putExtra("name", nameOfPlaylist);
-                break;
-            }
-        }
-
-        startActivity(intent);
-    }
-
-    public void ShowMusicList(Model_playlist model_playlist) {
-
-        for(Model_music music: model_playlist.listOfMusic) {
+    public void ShowAllMusicList() {
+        for(Model_music music: List_Model_music) {
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setContentDescription(music.title);
 //            linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -100,10 +71,48 @@ public class PlaylistActivity extends AppCompatActivity {
             textView.setTextSize(1,20);
             textView.setTextColor(Color.BLACK);
 
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setContentDescription(music.title);
+            List_CheckBox.add(checkBox);
+
             linearLayout.addView(imageView);
             linearLayout.addView(textView);
             container_music.addView(linearLayout);
         }
+    }
 
+    public void Click_button_ok(View view) {
+        if (List_CheckBox.size() != 0) {
+            String nameOfPlaylist = getIntent().getExtras().getString("name");
+
+            for(Model_playlist model_playlist: MainActivity.List_Model_playlist) {
+                if (model_playlist.equals(nameOfPlaylist)) {
+                    for(CheckBox checkBox: List_CheckBox) {
+                        if (checkBox.isChecked())
+                        {
+                            String titleOfMusic = checkBox.getContentDescription().toString();
+                            for(Model_music model_music: List_Model_music) {
+                                if (titleOfMusic.equals(model_music.title)) {
+                                    if (model_playlist.listOfMusic.contains(model_music)) {
+
+                                    }
+                                    else {
+                                        model_playlist.listOfMusic.add(model_music);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        finish();
+    }
+
+    public void Click_button_back(View view) {
+        finish();
     }
 }
