@@ -2,21 +2,16 @@ package com.jihoon.musicplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 public class PlaylistActivity extends AppCompatActivity {
 
@@ -28,6 +23,8 @@ public class PlaylistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
 
+        Toast.makeText(this, "onCreate", Toast.LENGTH_SHORT).show();
+
         container_music = findViewById(R.id.container_music);
         TextView_nameOfPlaylist = findViewById(R.id.TextView_nameOfPlaylist);
 
@@ -36,6 +33,25 @@ public class PlaylistActivity extends AppCompatActivity {
         TextView_nameOfPlaylist.setText(nameOfPlaylist);
 
         // 음악 리스트
+        for(Model_playlist model_playlist: MainActivity.List_Model_playlist) {
+            // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
+            if (model_playlist.name.equals(nameOfPlaylist)) {
+                ShowMusicList(model_playlist);
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show();
+
+        container_music = findViewById(R.id.container_music);
+        container_music.removeAllViews();
+
+        // 음악 리스트 업데이트
+        String nameOfPlaylist = getIntent().getExtras().getString("name");
         for(Model_playlist model_playlist: MainActivity.List_Model_playlist) {
             // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
             if (model_playlist.name.equals(nameOfPlaylist)) {

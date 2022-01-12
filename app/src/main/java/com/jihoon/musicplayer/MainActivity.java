@@ -16,13 +16,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<Model_playlist> List_Model_playlist = new ArrayList<Model_playlist>();
+    public static ArrayList<Model_music> List_Model_music = new ArrayList<Model_music>();
+
+
     public Model_playlist favorites;
 
     public static int size_1dp;
@@ -40,15 +42,19 @@ public class MainActivity extends AppCompatActivity {
         // dp -> pixel
         size_1dp = ConvertDPtoPX(this, 1);
 
+        // 전체 음악 리스트에 예시로 두 개 추가함 -> 나중에 DB에서 받아오도록 해야 함.
+        Model_music newMusic1 = new Model_music();
+        newMusic1.title = "Boss Bitch";
+        List_Model_music.add(newMusic1);
+        Model_music newMusic2 = new Model_music();
+        newMusic2.title = "Lucky You";
+        List_Model_music.add(newMusic2);
+
         // 초기 플레이리스트 하나 만들어둠.
         favorites = new Model_playlist();
         favorites.name = "최애음악";
-        // 새 음악 만들기
-        Model_music newMusic = new Model_music();
-        newMusic.title = "Lucky You";
-        MusicListActivity.List_Model_music.add(newMusic);
         // 플레이리스트에 음악 추가
-        favorites.listOfMusic.add(newMusic);
+        favorites.listOfMusic.add(newMusic2);
         List_Model_playlist.add(favorites);
 
         for(Model_playlist model_playlist: List_Model_playlist) {

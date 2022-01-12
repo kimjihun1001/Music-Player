@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
+    android:orientation="vertical"
     tools:context=".MusicListActivity">
 
     <LinearLayout
@@ -46,10 +47,10 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/container_music"
+            android:id="@+id/container_allMusic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"/>
     </ScrollView>
 
 </LinearLayout>
