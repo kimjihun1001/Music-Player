@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView textView = new TextView(this);
         textView.setText(model_playlist.name);
-        textView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 210, ViewGroup.LayoutParams.MATCH_PARENT));
+        textView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 200, ViewGroup.LayoutParams.MATCH_PARENT));
         // 하아.. 왜 이렇게 어려운 방식인걸까 ㅠㅠㅠ View의 margin 설정 방법!!!
         // 먼저, get으로 LayoutParams를 받아와서 속성 값을 조절해야 함.
         LinearLayout.LayoutParams textViewLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
