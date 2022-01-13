@@ -12,10 +12,13 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -60,6 +63,21 @@ public class MainActivity extends AppCompatActivity {
         for(Model_playlist model_playlist: List_Model_playlist) {
             MakeNewPlaylist(model_playlist);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show();
+
+        // 기존 화면 제거
+        container_playlist.removeAllViews();
+
+        // 리스트에서 플레이리스트 가져와서 화면에 표시
+        for(Model_playlist model_playlist: List_Model_playlist) {
+            MakeNewPlaylist(model_playlist);
+        }
+
     }
 
     // 플레이리스트 클릭 이벤트 핸들러: 내부 음악리스트 표시하는 액티비티로 넘어가게 함.
@@ -107,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
                 newPlaylist.name = nameOfPlaylist;
                 List_Model_playlist.add(newPlaylist);
 
-                MakeNewPlaylist(newPlaylist);
+                // 화면 업데이트
+                onResume();
             }
         });
 
@@ -147,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView textView = new TextView(this);
         textView.setText(model_playlist.name);
-        textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        textView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 210, ViewGroup.LayoutParams.MATCH_PARENT));
         // 하아.. 왜 이렇게 어려운 방식인걸까 ㅠㅠㅠ View의 margin 설정 방법!!!
         // 먼저, get으로 LayoutParams를 받아와서 속성 값을 조절해야 함.
         LinearLayout.LayoutParams textViewLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
@@ -157,9 +176,80 @@ public class MainActivity extends AppCompatActivity {
         textView.setTextSize(1,20);
         textView.setTextColor(Color.BLACK);
 
+        // 수정 버튼
+        ImageButton imageButton = new ImageButton(this);
+        // imageButton은 src말고 background로 설정해야 하는 듯. 근데 drawable로 가져와야 해서 get 함수 사용함.
+        imageButton.setBackground(getDrawable(R.drawable.option));
+        imageButton.setContentDescription(model_playlist.name);
+        imageButton.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 30, size_1dp *30));
+        LinearLayout.LayoutParams imageButtonViewLayoutParams = (LinearLayout.LayoutParams)imageButton.getLayoutParams();
+        imageButtonViewLayoutParams.setMargins(size_1dp * 10,size_1dp * 20,size_1dp * 10,size_1dp * 20);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Click_option(view);
+            }
+        });
+
+
         linearLayout.addView(imageView);
         linearLayout.addView(textView);
+        linearLayout.addView(imageButton);
         container_playlist.addView(linearLayout);
+    }
+
+    // 플레이리스트 설정 버튼 클릭 이벤트 핸들러
+    public void Click_option(View view) {
+
+        String nameOfPlaylist = view.getContentDescription().toString();
+
+        AlertDialog.Builder alert_newPlaylist = new AlertDialog.Builder(this);
+
+        alert_newPlaylist.setTitle("플레이리스트 정보 변경");
+        alert_newPlaylist.setMessage("수정할 제목을 입력하세요.");
+
+        // 사용자로부터 텍스트 입력받기 위한 박스
+        final EditText input = new EditText(this);
+        alert_newPlaylist.setView(input);
+
+        // 확인 누를 경우
+        alert_newPlaylist.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                for (Model_playlist model_playlist: List_Model_playlist) {
+                    if (model_playlist.name.equals(nameOfPlaylist)) {
+                        model_playlist.name = input.getText().toString();
+                    }
+                }
+                // 화면 업데이트
+                onResume();
+            }
+        });
+        // 삭제 누를 경우
+        alert_newPlaylist.setNeutralButton("삭제", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                int indexOfPlaylistToRemove = 100;
+                for (Model_playlist model_playlist: List_Model_playlist) {
+                    if (model_playlist.name.equals(nameOfPlaylist)) {
+                        indexOfPlaylistToRemove = List_Model_playlist.indexOf(model_playlist);
+                    }
+                }
+                List_Model_playlist.remove(indexOfPlaylistToRemove);
+
+                // 화면 업데이트
+                onResume();
+            }
+        });
+        // 취소 누를 경우
+        alert_newPlaylist.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // 취소됨
+            }
+        });
+
+        alert_newPlaylist.show();
     }
 
     public static int ConvertDPtoPX(Context context, int dp) {
