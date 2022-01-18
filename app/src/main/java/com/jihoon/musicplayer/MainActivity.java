@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -20,17 +21,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jihoon.musicplayer.Model.ModelMusic;
+import com.jihoon.musicplayer.Model.ModelPlaylist;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static ArrayList<Model_playlist> List_Model_playlist = new ArrayList<Model_playlist>();
-    public static ArrayList<Model_music> List_Model_music = new ArrayList<Model_music>();
+    // context가 필요해서 Const가 아니라 여기에 선언함.
+    public static int Size_1dp;
 
-
-    public Model_playlist favorites;
-
-    public static int size_1dp;
+    public ModelPlaylist favorites;
 
     LinearLayout container_playlist;
     Context nowContext;
@@ -40,28 +41,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // DB
+        com.jihoon.musicplayer.DBHelper helper;
+        SQLiteDatabase db;
+        helper = new com.jihoon.musicplayer.DBHelper(MainActivity.this, "newdb.db", null, 1);
+        db = helper.getWritableDatabase();
+        helper.onCreate(db);
+
         container_playlist = findViewById(R.id.container_music);
 
         // dp -> pixel
         size_1dp = ConvertDPtoPX(this, 1);
 
         // 전체 음악 리스트에 예시로 두 개 추가함 -> 나중에 DB에서 받아오도록 해야 함.
-        Model_music newMusic1 = new Model_music();
+        com.jihoon.musicplayer.Model_music newMusic1 = new com.jihoon.musicplayer.Model_music();
         newMusic1.title = "Boss Bitch";
         List_Model_music.add(newMusic1);
-        Model_music newMusic2 = new Model_music();
+        com.jihoon.musicplayer.Model_music newMusic2 = new com.jihoon.musicplayer.Model_music();
         newMusic2.title = "Lucky You";
         List_Model_music.add(newMusic2);
 
         // 초기 플레이리스트 하나 만들어둠.
-        favorites = new Model_playlist();
+        favorites = new com.jihoon.musicplayer.ModelPlaylist();
         favorites.name = "최애음악";
         // 플레이리스트에 음악 추가
         favorites.listOfMusic.add(newMusic2);
-        List_Model_playlist.add(favorites);
+        List_ModelPlaylist.add(favorites);
 
-        for(Model_playlist model_playlist: List_Model_playlist) {
-            MakeNewPlaylist(model_playlist);
+        for(com.jihoon.musicplayer.ModelPlaylist ModelPlaylist: List_ModelPlaylist) {
+            MakeNewPlaylist(ModelPlaylist);
         }
     }
 
@@ -74,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
         container_playlist.removeAllViews();
 
         // 리스트에서 플레이리스트 가져와서 화면에 표시
-        for(Model_playlist model_playlist: List_Model_playlist) {
-            MakeNewPlaylist(model_playlist);
+        for(com.jihoon.musicplayer.ModelPlaylist ModelPlaylist: List_ModelPlaylist) {
+            MakeNewPlaylist(ModelPlaylist);
         }
 
     }
@@ -86,10 +94,10 @@ public class MainActivity extends AppCompatActivity {
         String nameOfPlaylist = view.getContentDescription().toString();
         Intent intent = new Intent(getApplicationContext(), PlaylistActivity.class);
 
-        for (Model_playlist model_playlist: List_Model_playlist) {
-            if (model_playlist.name.equals(nameOfPlaylist))
+        for (com.jihoon.musicplayer.ModelPlaylist ModelPlaylist: List_ModelPlaylist) {
+            if (ModelPlaylist.name.equals(nameOfPlaylist))
             {
-                intent.putExtra("name", model_playlist.name);
+                intent.putExtra("name", ModelPlaylist.name);
             }
         }
 
@@ -121,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 String nameOfPlaylist = input.getText().toString();
 
-                Model_playlist newPlaylist = new Model_playlist();
+                com.jihoon.musicplayer.ModelPlaylist newPlaylist = new com.jihoon.musicplayer.ModelPlaylist();
                 newPlaylist.name = nameOfPlaylist;
-                List_Model_playlist.add(newPlaylist);
+                List_ModelPlaylist.add(newPlaylist);
 
                 // 화면 업데이트
                 onResume();
@@ -142,10 +150,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ResourceAsColor")
-    public void MakeNewPlaylist(Model_playlist model_playlist) {
+    public void MakeNewPlaylist(com.jihoon.musicplayer.ModelPlaylist ModelPlaylist) {
 
         LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setContentDescription(model_playlist.name);
+        linearLayout.setContentDescription(ModelPlaylist.name);
         linearLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Click_Playlist(view);
@@ -165,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         imageViewLayoutParams.setMargins(newMargin,newMargin,newMargin,newMargin);
 
         TextView textView = new TextView(this);
-        textView.setText(model_playlist.name);
+        textView.setText(ModelPlaylist.name);
         textView.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 200, ViewGroup.LayoutParams.MATCH_PARENT));
         // 하아.. 왜 이렇게 어려운 방식인걸까 ㅠㅠㅠ View의 margin 설정 방법!!!
         // 먼저, get으로 LayoutParams를 받아와서 속성 값을 조절해야 함.
@@ -180,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton imageButton = new ImageButton(this);
         // imageButton은 src말고 background로 설정해야 하는 듯. 근데 drawable로 가져와야 해서 get 함수 사용함.
         imageButton.setBackground(getDrawable(R.drawable.option));
-        imageButton.setContentDescription(model_playlist.name);
+        imageButton.setContentDescription(ModelPlaylist.name);
         imageButton.setLayoutParams(new LinearLayout.LayoutParams(size_1dp * 30, size_1dp *30));
         LinearLayout.LayoutParams imageButtonViewLayoutParams = (LinearLayout.LayoutParams)imageButton.getLayoutParams();
         imageButtonViewLayoutParams.setMargins(size_1dp * 10,size_1dp * 20,size_1dp * 10,size_1dp * 20);
@@ -216,9 +224,9 @@ public class MainActivity extends AppCompatActivity {
         alert_newPlaylist.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                for (Model_playlist model_playlist: List_Model_playlist) {
-                    if (model_playlist.name.equals(nameOfPlaylist)) {
-                        model_playlist.name = input.getText().toString();
+                for (ModelPlaylist modelPlaylist: List_ModelPlaylist) {
+                    if (modelPlaylist.name.equals(nameOfPlaylist)) {
+                        modelPlaylist.name = input.getText().toString();
                     }
                 }
                 // 화면 업데이트
@@ -230,12 +238,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 int indexOfPlaylistToRemove = 100;
-                for (Model_playlist model_playlist: List_Model_playlist) {
-                    if (model_playlist.name.equals(nameOfPlaylist)) {
-                        indexOfPlaylistToRemove = List_Model_playlist.indexOf(model_playlist);
+                for (com.jihoon.musicplayer.ModelPlaylist ModelPlaylist: List_ModelPlaylist) {
+                    if (ModelPlaylist.name.equals(nameOfPlaylist)) {
+                        indexOfPlaylistToRemove = List_ModelPlaylist.indexOf(ModelPlaylist);
                     }
                 }
-                List_Model_playlist.remove(indexOfPlaylistToRemove);
+                List_ModelPlaylist.remove(indexOfPlaylistToRemove);
 
                 // 화면 업데이트
                 onResume();
@@ -252,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         alert_newPlaylist.show();
     }
 
-    public static int ConvertDPtoPX(Context context, int dp) {
+    public int ConvertDPtoPX(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round((float) dp * density);
     }
