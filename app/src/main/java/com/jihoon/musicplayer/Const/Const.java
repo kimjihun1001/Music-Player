@@ -2,6 +2,7 @@ package com.jihoon.musicplayer.Const;
 
 import android.content.Context;
 
+import com.jihoon.musicplayer.MainActivity;
 import com.jihoon.musicplayer.Model.ModelMusic;
 import com.jihoon.musicplayer.Model.ModelPlaylist;
 
@@ -14,7 +15,6 @@ public class Const {
     public Const() {
 
     }
-
 }
 
 

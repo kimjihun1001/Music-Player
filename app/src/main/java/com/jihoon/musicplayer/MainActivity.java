@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,7 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jihoon.musicplayer.Const.Const;
-import com.jihoon.musicplayer.DB.AllMusicDBHelper;
+import com.jihoon.musicplayer.Const.MusicPlayerDBContract;
+import com.jihoon.musicplayer.DB.MusicPlayerDBHelper;
 import com.jihoon.musicplayer.Model.ModelPlaylist;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public static int Size_1dp;
 
     LinearLayout container_playlist;
+    MusicPlayerDBHelper musicPlayerDBHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // DB 만들기
-        AllMusicDBHelper allMusicDBHelper;
-        SQLiteDatabase allMusicDB;
-        allMusicDBHelper = new AllMusicDBHelper(MainActivity.this, "allMusicDB.db", null, 1);
-        allMusicDB = allMusicDBHelper.getWritableDatabase();
-        allMusicDBHelper.onCreate(allMusicDB);
+        init_tables();
+
 
         // dp -> pixel
         Size_1dp = ConvertDPtoPX(this, 1);
@@ -235,4 +235,20 @@ public class MainActivity extends AppCompatActivity {
         return Math.round((float) dp * density);
     }
 
+    // DB 관련
+    private void init_tables() {
+        musicPlayerDBHelper = new MusicPlayerDBHelper(this);
+    }
+    private void load_allMusic() {
+        SQLiteDatabase db = musicPlayerDBHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_ALLMUSIC, null);
+
+        if (cursor.moveToFirst()) {
+            String title = cursor.getString(0);
+
+        }
+    }
+    private void save_allMusic() {
+
+    }
 }

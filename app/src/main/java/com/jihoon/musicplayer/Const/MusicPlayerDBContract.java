@@ -1,12 +1,12 @@
 package com.jihoon.musicplayer.Const;
 
 // 데이터베이스 Contact를 위한 계약 클래스(Contract Class)
-public class ContactDBContract {
+public class MusicPlayerDBContract {
 
     // 계약 클래스는 인스턴스를 만들 필요가 없기 때문에 생성자의 접근 제한자(Access Modifier)를 private으로 선언
-    private  ContactDBContract() {};
+    private MusicPlayerDBContract() {};
 
-    // 테이블: ALLMUSIC_T
+    // 1️⃣ 테이블: ALLMUSIC_T
     // 전체 음악 리스트 정보를 담고 있는 테이블
     public static final String TBL_ALLMUSIC = "ALLMUSIC_T";
     public static final String COL_TITLE = "TITLE";
@@ -28,7 +28,7 @@ public class ContactDBContract {
     public static final String SQL_DELETE_TBL_ALLMUSIC = "DELETE FROM " + TBL_ALLMUSIC + " ";
 
 
-    // 테이블: MUSICOFPLAYLIST_T
+    // 2️⃣ 테이블: MUSICOFPLAYLIST_T
     // 플레이리스트 내부 음악 리스트 정보를 담고 있는 테이블
     public static final String TBL_MUSICOFPLAYLIST = "MUSICOFPLAYLIST_T";
     // public static final String COL_TITLE = "TITLE";
@@ -50,7 +50,7 @@ public class ContactDBContract {
     public static final String SQL_DELETE_TBL_MUSICOFPLAYLIST = "DELETE FROM " + TBL_MUSICOFPLAYLIST + " ";
 
 
-    // 테이블: PLAYLIST_T
+    // 3️⃣ 테이블: PLAYLIST_T
     // 전체 플레이리스트 정보를 담고 있는 테이블
     public static final String TBL_PLAYLIST = "PLAYLIST_T";
     // public static final String COL_TITLE = "TITLE";
