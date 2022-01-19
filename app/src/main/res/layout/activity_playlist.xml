@@ -21,7 +21,7 @@
             android:onClick="Click_button_back" />
 
         <TextView
-            android:id="@+id/TextView_nameOfPlaylist"
+            android:id="@+id/TextView_titleOfPlaylist"
             android:layout_width="310dp"
             android:layout_height="match_parent"
             android:fontFamily="sans-serif"

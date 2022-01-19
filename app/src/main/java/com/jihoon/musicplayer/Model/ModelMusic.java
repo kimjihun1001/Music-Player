@@ -1,9 +1,12 @@
 package com.jihoon.musicplayer.Model;
 
 public class ModelMusic {
-    public String title;
+    private String title;
 
     public ModelMusic() {
 
     }
+
+    public String getTitle() { return this.title; }
+    public void setTitle(String title) { this.title = title; }
 }

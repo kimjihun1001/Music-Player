@@ -1,5 +1,7 @@
 package com.jihoon.musicplayer;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -11,6 +13,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,24 +26,35 @@ import android.widget.TextView;
 import com.jihoon.musicplayer.Const.Const;
 import com.jihoon.musicplayer.Const.MusicPlayerDBContract;
 import com.jihoon.musicplayer.DB.MusicPlayerDBHelper;
+import com.jihoon.musicplayer.Model.ModelMusic;
 import com.jihoon.musicplayer.Model.ModelPlaylist;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class MainActivity extends AppCompatActivity {
 
     // context가 필요해서 Const가 아니라 여기에 선언함.
     public static int Size_1dp;
 
-    LinearLayout container_playlist;
-    MusicPlayerDBHelper musicPlayerDBHelper = null;
+    private LinearLayout container_playlist;
+    public static MusicPlayerDBHelper musicPlayerDBHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // DB 만들기
+        // DBHelper 만들기
         init_tables();
-
+        // 처음 한 번만 실행 - 기본 음악리스트 만들기
+        // init_allMusic();
+        // DB 불러오기
+        load_DB();
 
         // dp -> pixel
         Size_1dp = ConvertDPtoPX(this, 1);
@@ -67,13 +81,13 @@ public class MainActivity extends AppCompatActivity {
     // 플레이리스트 클릭 이벤트 핸들러: 내부 음악리스트 표시하는 액티비티로 넘어가게 함.
     public  void Click_Playlist(View view) {
 
-        String nameOfPlaylist = view.getContentDescription().toString();
+        String titleOfPlaylist = view.getContentDescription().toString();
         Intent intent = new Intent(getApplicationContext(), PlaylistActivity.class);
 
         for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-            if (modelPlaylist.name.equals(nameOfPlaylist))
+            if (modelPlaylist.getTitle().equals(titleOfPlaylist))
             {
-                intent.putExtra("name", modelPlaylist.name);
+                intent.putExtra("title", modelPlaylist.getTitle());
             }
         }
 
@@ -98,11 +112,14 @@ public class MainActivity extends AppCompatActivity {
         alert_newPlaylist.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String nameOfPlaylist = input.getText().toString();
+                String titleOfPlaylist = input.getText().toString();
 
                 ModelPlaylist newPlaylist = new ModelPlaylist();
-                newPlaylist.name = nameOfPlaylist;
+                newPlaylist.setTitle(titleOfPlaylist);
                 Const.List_ModelPlaylist.add(newPlaylist);
+
+                // DB 업데이트
+                save_DB();
 
                 // 화면 업데이트
                 onResume();
@@ -124,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     public void MakeNewPlaylist(ModelPlaylist modelPlaylist) {
 
         LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setContentDescription(modelPlaylist.name);
+        linearLayout.setContentDescription(modelPlaylist.getTitle());
         linearLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Click_Playlist(view);
@@ -144,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         imageViewLayoutParams.setMargins(newMargin,newMargin,newMargin,newMargin);
 
         TextView textView = new TextView(this);
-        textView.setText(modelPlaylist.name);
+        textView.setText(modelPlaylist.getTitle());
         textView.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 200, ViewGroup.LayoutParams.MATCH_PARENT));
         // 하아.. 왜 이렇게 어려운 방식인걸까 ㅠㅠㅠ View의 margin 설정 방법!!!
         // 먼저, get으로 LayoutParams를 받아와서 속성 값을 조절해야 함.
@@ -159,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton imageButton = new ImageButton(this);
         // imageButton은 src말고 background로 설정해야 하는 듯. 근데 drawable로 가져와야 해서 get 함수 사용함.
         imageButton.setBackground(getDrawable(R.drawable.option));
-        imageButton.setContentDescription(modelPlaylist.name);
+        imageButton.setContentDescription(modelPlaylist.getTitle());
         imageButton.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 30, Size_1dp *30));
         LinearLayout.LayoutParams imageButtonViewLayoutParams = (LinearLayout.LayoutParams)imageButton.getLayoutParams();
         imageButtonViewLayoutParams.setMargins(Size_1dp * 10,Size_1dp * 20,Size_1dp * 10,Size_1dp * 20);
@@ -179,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
     // 플레이리스트 설정 버튼 클릭 이벤트 핸들러
     public void Click_option(View view) {
 
-        String nameOfPlaylist = view.getContentDescription().toString();
+        String titleOfPlaylist = view.getContentDescription().toString();
 
         AlertDialog.Builder alert_newPlaylist = new AlertDialog.Builder(this);
 
@@ -195,10 +212,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-                    if (modelPlaylist.name.equals(nameOfPlaylist)) {
-                        modelPlaylist.name = input.getText().toString();
+                    if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
+                        modelPlaylist.setTitle(input.getText().toString());
                     }
                 }
+                // DB 업데이트
+                save_DB();
+
                 // 화면 업데이트
                 onResume();
             }
@@ -209,11 +229,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 int indexOfPlaylistToRemove = 100;
                 for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-                    if (modelPlaylist.name.equals(nameOfPlaylist)) {
+                    if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
                         indexOfPlaylistToRemove = Const.List_ModelPlaylist.indexOf(modelPlaylist);
                     }
                 }
                 Const.List_ModelPlaylist.remove(indexOfPlaylistToRemove);
+
+                // DB 업데이트
+                save_DB();
 
                 // 화면 업데이트
                 onResume();
@@ -239,16 +262,76 @@ public class MainActivity extends AppCompatActivity {
     private void init_tables() {
         musicPlayerDBHelper = new MusicPlayerDBHelper(this);
     }
-    private void load_allMusic() {
+    private void load_DB() {
         SQLiteDatabase db = musicPlayerDBHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_ALLMUSIC, null);
 
-        if (cursor.moveToFirst()) {
-            String title = cursor.getString(0);
+        Cursor cursorForAllMusic = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_ALLMUSIC, null);
+        while (cursorForAllMusic.moveToNext()) {
+            String title = cursorForAllMusic.getString(0);
+            ModelMusic modelMusic = new ModelMusic();
+            modelMusic.setTitle(title);
+            Const.List_ModelMusic.add(modelMusic);
+        }
 
+        Cursor cursorForPlaylist = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_PLAYLIST, null);
+        while (cursorForPlaylist.moveToNext()) {
+            String title = cursorForPlaylist.getString(0);
+            boolean isFavorite = ((cursorForPlaylist.getInt(1) == 1) ? true : false);
+            ModelPlaylist modelPlaylist = new ModelPlaylist();
+            modelPlaylist.setTitle(title);
+            modelPlaylist.setIsFavorite(isFavorite);
+            Const.List_ModelPlaylist.add(modelPlaylist);
+        }
+
+        Cursor cursorForMusicOfPlaylist = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_MUSICOFPLAYLIST, null);
+        while (cursorForMusicOfPlaylist.moveToNext()) {
+            String titleOfPlaylist = cursorForMusicOfPlaylist.getString(0);
+            String title = cursorForPlaylist.getString(1);
+            ModelMusic modelMusic = new ModelMusic();
+
+            for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
+                if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
+                    modelPlaylist.List_MusicOfPlaylist.add(modelMusic);
+                    break;
+                }
+            }
         }
     }
-    private void save_allMusic() {
+    public static void save_DB() {
+        SQLiteDatabase db = musicPlayerDBHelper.getWritableDatabase();
 
+        db.execSQL(MusicPlayerDBContract.SQL_DELETE_TBL_PLAYLIST);
+        db.execSQL(MusicPlayerDBContract.SQL_DELETE_TBL_MUSICOFPLAYLIST);
+
+        for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
+            db.execSQL(MusicPlayerDBContract.SQL_INSERT_TBL_PLAYLIST +
+                    "(" +
+                    "'" + modelPlaylist.getTitle() + "', " +
+                    ((modelPlaylist.getIsFavorite() == true) ? 1 : 0) +
+                    ")"
+            );
+
+            for (ModelMusic modelMusic: modelPlaylist.List_MusicOfPlaylist) {
+                db.execSQL(MusicPlayerDBContract.SQL_INSERT_TBL_MUSICOFPLAYLIST +
+                        "(" +
+                        "'" + modelPlaylist.getTitle() + "', " +
+                        "'" + modelMusic.getTitle() + "'" +
+                        ")"
+                );
+            }
+        }
+    }
+    private void init_allMusic() {
+         SQLiteDatabase db = musicPlayerDBHelper.getWritableDatabase();
+         db.execSQL(MusicPlayerDBContract.SQL_DELETE_TBL_ALLMUSIC);
+         ArrayList<String> List_titleOfMusic = new ArrayList<String>(Arrays.asList("Boss bitch", "White Christmas", "Lucky you"));
+
+        for (String titleOfMusic: List_titleOfMusic) {
+            db.execSQL(MusicPlayerDBContract.SQL_INSERT_TBL_ALLMUSIC +
+                    "(" +
+                    "'" + titleOfMusic + "'" +
+                    ")"
+            );
+        }
     }
 }

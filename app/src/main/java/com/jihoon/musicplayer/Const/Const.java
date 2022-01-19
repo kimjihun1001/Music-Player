@@ -12,7 +12,7 @@ public class Const {
     public static ArrayList<ModelPlaylist> List_ModelPlaylist = new ArrayList<ModelPlaylist>();
     public static ArrayList<ModelMusic> List_ModelMusic = new ArrayList<ModelMusic>();
 
-    public Const() {
+    private Const() {
 
     }
 }
