@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         // 리스트에서 플레이리스트 가져와서 화면에 표시
         for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
             MakeNewPlaylist(modelPlaylist);
+            MakeFavPlaylist(modelPlaylist);
         }
     }
 
@@ -139,21 +140,28 @@ public class MainActivity extends AppCompatActivity {
                 String titleOfPlaylist = input.getText().toString();
 
                 // 플레이리스트 제목 중복 체크
+                boolean isThereSameTitle = false;
                 for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
                     if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-
+                        isThereSameTitle = true;
                     }
-                    else {
-                        ModelPlaylist newPlaylist = new ModelPlaylist();
-                        newPlaylist.setTitle(titleOfPlaylist);
-                        Const.List_ModelPlaylist.add(newPlaylist);
 
-                        // DB 업데이트
-                        save_DB();
+                }
 
-                        // 화면 업데이트
-                        onResume();
-                    }
+                // 입력값이 없거나 중복된 이름이 있으면 아무 일도 일어나지 않음.
+                if (titleOfPlaylist.equals("") || isThereSameTitle == true) {
+
+                }
+                else {
+                    ModelPlaylist newPlaylist = new ModelPlaylist();
+                    newPlaylist.setTitle(titleOfPlaylist);
+                    Const.List_ModelPlaylist.add(newPlaylist);
+
+                    // DB 업데이트
+                    save_DB();
+
+                    // 화면 업데이트
+                    onResume();
                 }
 
             }
@@ -208,10 +216,10 @@ public class MainActivity extends AppCompatActivity {
         // 하트 버튼
         ImageButton imageButton_fav = new ImageButton(this);
         if (modelPlaylist.getIsFavorite() == true) {
-            imageButton_fav.setBackground(getDrawable(R.drawable.ic_baseline_favorite_24));
+            imageButton_fav.setBackground(getDrawable(R.drawable.heart));
         }
         else {
-            imageButton_fav.setBackground(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+            imageButton_fav.setBackground(getDrawable(R.drawable.heart_border));
         }
         imageButton_fav.setContentDescription(modelPlaylist.getTitle());
         imageButton_fav.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 30, Size_1dp *30));
@@ -244,7 +252,81 @@ public class MainActivity extends AppCompatActivity {
         linearLayout.addView(imageButton_fav);
         linearLayout.addView(imageButton);
         container_playlist.addView(linearLayout);
+    }
+
+    public void MakeFavPlaylist(ModelPlaylist modelPlaylist) {
+
         if (modelPlaylist.getIsFavorite() == true) {
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setContentDescription(modelPlaylist.getTitle());
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    Click_Playlist(view);
+                }
+            });
+            // 레이아웃 방향 설정 방법!!
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Size_1dp * 70));
+
+            ImageView imageView = new ImageView(this);
+            imageView.setImageResource(R.drawable.music);
+            // 휴우.. View의 크기 설정 방법!!
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 70, ViewGroup.LayoutParams.MATCH_PARENT));
+            // margin
+            LinearLayout.LayoutParams imageViewLayoutParams = (LinearLayout.LayoutParams)imageView.getLayoutParams();
+            int newMargin = MainActivity.Size_1dp * 10;
+            imageViewLayoutParams.setMargins(newMargin,newMargin,newMargin,newMargin);
+
+            TextView textView = new TextView(this);
+            textView.setText(modelPlaylist.getTitle());
+            textView.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 170, ViewGroup.LayoutParams.MATCH_PARENT));
+            // 하아.. 왜 이렇게 어려운 방식인걸까 ㅠㅠㅠ View의 margin 설정 방법!!!
+            // 먼저, get으로 LayoutParams를 받아와서 속성 값을 조절해야 함.
+            LinearLayout.LayoutParams textViewLayoutParams = (LinearLayout.LayoutParams)textView.getLayoutParams();
+            textViewLayoutParams.leftMargin = Size_1dp * 9;
+            // View의 Gravity 설정 방법!
+            textView.setGravity(Gravity.CENTER_VERTICAL);
+            textView.setTextSize(1,20);
+            textView.setTextColor(Color.BLACK);
+
+            // 하트 버튼
+            ImageButton imageButton_fav = new ImageButton(this);
+            if (modelPlaylist.getIsFavorite() == true) {
+                imageButton_fav.setBackground(getDrawable(R.drawable.heart));
+            }
+            else {
+                imageButton_fav.setBackground(getDrawable(R.drawable.heart_border));
+            }
+            imageButton_fav.setContentDescription(modelPlaylist.getTitle());
+            imageButton_fav.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 30, Size_1dp *30));
+            LinearLayout.LayoutParams imageButton_favViewLayoutParams = (LinearLayout.LayoutParams)imageButton_fav.getLayoutParams();
+            imageButton_favViewLayoutParams.setMargins(Size_1dp * 10,Size_1dp * 20,Size_1dp * 10,Size_1dp * 20);
+            imageButton_fav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Click_heart(view);
+                }
+            });
+
+            // 수정 버튼
+            ImageButton imageButton = new ImageButton(this);
+            // imageButton은 src말고 background로 설정해야 하는 듯. 근데 drawable로 가져와야 해서 get 함수 사용함.
+            imageButton.setBackground(getDrawable(R.drawable.option));
+            imageButton.setContentDescription(modelPlaylist.getTitle());
+            imageButton.setLayoutParams(new LinearLayout.LayoutParams(Size_1dp * 30, Size_1dp *30));
+            LinearLayout.LayoutParams imageButtonViewLayoutParams = (LinearLayout.LayoutParams)imageButton.getLayoutParams();
+            imageButtonViewLayoutParams.setMargins(Size_1dp * 10,Size_1dp * 20,Size_1dp * 10,Size_1dp * 20);
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Click_option(view);
+                }
+            });
+
+            linearLayout.addView(imageView);
+            linearLayout.addView(textView);
+            linearLayout.addView(imageButton_fav);
+            linearLayout.addView(imageButton);
             container_favoritePlaylist.addView(linearLayout);
         }
 
@@ -257,11 +339,11 @@ public class MainActivity extends AppCompatActivity {
             if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
                 if (modelPlaylist.getIsFavorite() == true) {
                     modelPlaylist.setIsFavorite(false);
-                    view.setBackground(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                    view.setBackground(getDrawable(R.drawable.heart_border));
                 }
                 else {
                     modelPlaylist.setIsFavorite(true);
-                    view.setBackground(getDrawable(R.drawable.ic_baseline_favorite_24));
+                    view.setBackground(getDrawable(R.drawable.heart));
                 }
             }
         }
@@ -291,16 +373,33 @@ public class MainActivity extends AppCompatActivity {
         alert_newPlaylist.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-                    if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-                        modelPlaylist.setTitle(input.getText().toString());
-                    }
-                }
-                // DB 업데이트
-                save_DB();
 
-                // 화면 업데이트
-                onResume();
+                // 플레이리스트 제목 중복 체크
+                boolean isThereSameTitle = false;
+                for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
+                    if (modelPlaylist.getTitle().equals(input)) {
+                        isThereSameTitle = true;
+                    }
+
+                }
+
+                // 입력값이 없거나 중복된 이름이 있으면 아무 일도 일어나지 않음.
+                if (input.equals("") || isThereSameTitle == true) {
+
+                }
+                else {
+                    for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
+                        if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
+                            modelPlaylist.setTitle(input.getText().toString());
+                        }
+                    }
+                    // DB 업데이트
+                    save_DB();
+
+                    // 화면 업데이트
+                    onResume();
+                }
+
             }
         });
         // 삭제 누를 경우

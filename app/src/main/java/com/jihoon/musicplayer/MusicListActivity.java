@@ -76,7 +76,7 @@ public class MusicListActivity extends AppCompatActivity {
 
             CheckBox checkBox = new CheckBox(this);
             checkBox.setContentDescription(music.getTitle());
-            checkBox.setText("y");
+            checkBox.setText("");
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -84,7 +84,7 @@ public class MusicListActivity extends AppCompatActivity {
                 }
             });
             checkBox.setLayoutParams(new LinearLayout.LayoutParams(MainActivity.Size_1dp * 30, MainActivity.Size_1dp * 30));
-            checkBox.setBackgroundColor(Color.BLUE);
+            checkBox.setBackgroundColor(Color.BLACK);
 
             linearLayout.addView(imageView);
             linearLayout.addView(textView);
