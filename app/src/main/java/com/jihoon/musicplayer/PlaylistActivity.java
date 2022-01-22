@@ -24,9 +24,12 @@ import com.jihoon.musicplayer.Model.ModelPlaylist;
 
 public class PlaylistActivity extends AppCompatActivity {
 
-    LinearLayout container_music;
-    TextView TextView_titleOfPlaylist;
-    String titleOfPlaylist;
+    private LinearLayout container_music;
+    private TextView TextView_titleOfPlaylist;
+    private String titleOfPlaylist;
+
+    private ModelPlaylist currentModelPlaylist;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +44,12 @@ public class PlaylistActivity extends AppCompatActivity {
         titleOfPlaylist = getIntent().getExtras().getString("title");
         TextView_titleOfPlaylist.setText(titleOfPlaylist);
 
+        // 현재 플레이리스트 객체 설정
+        for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
+            if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
+                currentModelPlaylist = modelPlaylist;
+            }
+        }
     }
 
     @Override
