@@ -62,14 +62,14 @@ public class MainActivity extends AppCompatActivity {
         ts1.setContent(R.id.tab1) ;
 
         // 탭에 표시될 문자열 지정.
-        ts1.setIndicator("전체") ;
+        ts1.setIndicator("전체목록") ;
 
         // TabHost에 탭 추가.
         tabHost1.addTab(ts1)  ;
 
         TabHost.TabSpec ts2 = tabHost1.newTabSpec("Tab Spec") ;
         ts2.setContent(R.id.tab2) ;
-        ts2.setIndicator("관심") ;
+        ts2.setIndicator("관심목록") ;
         tabHost1.addTab(ts2)  ;
 
 

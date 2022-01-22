@@ -22,13 +22,15 @@ import com.jihoon.musicplayer.Const.Const;
 import com.jihoon.musicplayer.Model.ModelMusic;
 import com.jihoon.musicplayer.Model.ModelPlaylist;
 
+import java.util.List;
+
 public class PlaylistActivity extends AppCompatActivity {
 
     private LinearLayout container_music;
     private TextView TextView_titleOfPlaylist;
     private String titleOfPlaylist;
 
-    private ModelPlaylist currentModelPlaylist;
+    public ModelPlaylist currentModelPlaylist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,17 +62,7 @@ public class PlaylistActivity extends AppCompatActivity {
         container_music.removeAllViews();
 
         // 음악 리스트 업데이트
-        for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-            // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
-            if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-                if (!modelPlaylist.List_MusicOfPlaylist.isEmpty()) {
-                    Toast.makeText(this, modelPlaylist.List_MusicOfPlaylist.get(0).getTitle(), Toast.LENGTH_SHORT).show();
-                }
-
-                ShowMusicList(modelPlaylist);
-                break;
-            }
-        }
+        ShowMusicList(currentModelPlaylist);
     }
 
     public void Click_button_back(View view) {
@@ -79,17 +71,11 @@ public class PlaylistActivity extends AppCompatActivity {
 
     public void Click_button_newMusic(View view) {
 
-        String titleOfPlaylist = getIntent().getExtras().getString("title");
         // 전체 음악 리스트를 보여주는 액티비티로 넘어가야 함.
         Intent intent = new Intent(getApplicationContext(), MusicListActivity.class);
 
         // intent에 플레이리스트 제목 추가
-        for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-            if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-                intent.putExtra("title", titleOfPlaylist);
-                break;
-            }
-        }
+        intent.putExtra("title", currentModelPlaylist.getTitle());
 
         startActivity(intent);
     }
@@ -97,7 +83,6 @@ public class PlaylistActivity extends AppCompatActivity {
     public void ShowMusicList(ModelPlaylist modelPlaylist) {
 
         for(ModelMusic music: modelPlaylist.List_MusicOfPlaylist) {
-            Toast.makeText(this, music.getTitle(), Toast.LENGTH_SHORT);
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setContentDescription(music.getTitle());
 //            linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -165,16 +150,12 @@ public class PlaylistActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 int indexOfMusicToRemove = 100;
-                for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-                    if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-                        for (ModelMusic modelMusic: modelPlaylist.List_MusicOfPlaylist) {
-                            if (modelMusic.getTitle().equals(titleOfMusic)) {
-                                indexOfMusicToRemove = modelPlaylist.List_MusicOfPlaylist.indexOf(modelMusic);
-                            }
-                        }
-                        modelPlaylist.List_MusicOfPlaylist.remove(indexOfMusicToRemove);
+                for (ModelMusic modelMusic :currentModelPlaylist.List_MusicOfPlaylist) {
+                    if (modelMusic.getTitle().equals(titleOfMusic)) {
+                        indexOfMusicToRemove = currentModelPlaylist.List_MusicOfPlaylist.indexOf(modelMusic);
                     }
                 }
+                currentModelPlaylist.List_MusicOfPlaylist.remove(indexOfMusicToRemove);
 
                 // DB 업데이트
                 MainActivity.save_DB();
