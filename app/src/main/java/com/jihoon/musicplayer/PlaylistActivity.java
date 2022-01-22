@@ -41,14 +41,6 @@ public class PlaylistActivity extends AppCompatActivity {
         titleOfPlaylist = getIntent().getExtras().getString("title");
         TextView_titleOfPlaylist.setText(titleOfPlaylist);
 
-        // 음악 리스트
-        for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-            // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
-            if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
-                ShowMusicList(modelPlaylist);
-                break;
-            }
-        }
     }
 
     @Override
@@ -56,14 +48,16 @@ public class PlaylistActivity extends AppCompatActivity {
         super.onResume();
         Toast.makeText(this, "onResume", Toast.LENGTH_SHORT).show();
 
-        container_music = findViewById(R.id.container_music);
         container_music.removeAllViews();
 
         // 음악 리스트 업데이트
-        String titleOfPlaylist = getIntent().getExtras().getString("title");
         for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
             // == 대신 equals()를 사용해야 함. 내용 자체를 비교하는 것이기 때문!!
             if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
+                if (!modelPlaylist.List_MusicOfPlaylist.isEmpty()) {
+                    Toast.makeText(this, modelPlaylist.List_MusicOfPlaylist.get(0).getTitle(), Toast.LENGTH_SHORT).show();
+                }
+
                 ShowMusicList(modelPlaylist);
                 break;
             }
@@ -165,11 +159,16 @@ public class PlaylistActivity extends AppCompatActivity {
                 for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
                     if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
                         for (ModelMusic modelMusic: modelPlaylist.List_MusicOfPlaylist) {
-                            indexOfMusicToRemove = modelPlaylist.List_MusicOfPlaylist.indexOf(modelMusic);
+                            if (modelMusic.getTitle().equals(titleOfMusic)) {
+                                indexOfMusicToRemove = modelPlaylist.List_MusicOfPlaylist.indexOf(modelMusic);
+                            }
                         }
+                        modelPlaylist.List_MusicOfPlaylist.remove(indexOfMusicToRemove);
                     }
-                    modelPlaylist.List_MusicOfPlaylist.remove(indexOfMusicToRemove);
                 }
+
+                // DB 업데이트
+                MainActivity.save_DB();
 
                 // 화면 업데이트
                 onResume();

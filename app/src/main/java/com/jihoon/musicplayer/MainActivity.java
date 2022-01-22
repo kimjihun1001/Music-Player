@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 import com.jihoon.musicplayer.Const.Const;
@@ -49,6 +50,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Tab
+        TabHost tabHost1 = (TabHost) findViewById(R.id.tabHost1) ;
+        tabHost1.setup() ;
+        // "Tab Spec" 태그(Tag)를 가진 TabSpec 객체 생성.
+        TabHost.TabSpec ts1 = tabHost1.newTabSpec("Tab Spec") ;
+
+        // 탭이 눌려졌을 때 FrameLayout에 표시될 Content 뷰에 대한 리소스 id 지정.
+        ts1.setContent(R.id.tab1) ;
+
+        // 탭에 표시될 문자열 지정.
+        ts1.setIndicator("전체") ;
+
+        // TabHost에 탭 추가.
+        tabHost1.addTab(ts1)  ;
+
+        TabHost.TabSpec ts2 = tabHost1.newTabSpec("Tab Spec") ;
+        ts2.setContent(R.id.tab2) ;
+        ts2.setIndicator("관심") ;
+        tabHost1.addTab(ts2)  ;
+
+
         // DBHelper 만들기
         init_tables();
         // 처음 한 번만 실행 - 기본 음악리스트 만들기
@@ -59,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         // dp -> pixel
         Size_1dp = ConvertDPtoPX(this, 1);
 
-        container_playlist = findViewById(R.id.container_music);
+        container_playlist = findViewById(R.id.container_playlist);
 
     }
 
@@ -286,13 +308,13 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursorForMusicOfPlaylist = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_MUSICOFPLAYLIST, null);
         while (cursorForMusicOfPlaylist.moveToNext()) {
             String titleOfPlaylist = cursorForMusicOfPlaylist.getString(0);
-            String title = cursorForPlaylist.getString(1);
+            String title = cursorForMusicOfPlaylist.getString(1);
             ModelMusic modelMusic = new ModelMusic();
+            modelMusic.setTitle(title);
 
             for (ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
                 if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
                     modelPlaylist.List_MusicOfPlaylist.add(modelMusic);
-                    break;
                 }
             }
         }

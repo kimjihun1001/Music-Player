@@ -76,7 +76,7 @@ public class MusicListActivity extends AppCompatActivity {
 
             CheckBox checkBox = new CheckBox(this);
             checkBox.setContentDescription(music.getTitle());
-            checkBox.setText("");
+            checkBox.setText("y");
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -84,7 +84,7 @@ public class MusicListActivity extends AppCompatActivity {
                 }
             });
             checkBox.setLayoutParams(new LinearLayout.LayoutParams(MainActivity.Size_1dp * 30, MainActivity.Size_1dp * 30));
-            checkBox.setBackgroundColor(Color.BLACK);
+            checkBox.setBackgroundColor(Color.BLUE);
 
             linearLayout.addView(imageView);
             linearLayout.addView(textView);
@@ -94,7 +94,6 @@ public class MusicListActivity extends AppCompatActivity {
     }
 
     public void Check_checkBox(CompoundButton compoundButton) {
-        Toast.makeText(this, "checkbox", Toast.LENGTH_SHORT);
 
         String titleOfMusic = compoundButton.getContentDescription().toString();
 
@@ -112,14 +111,15 @@ public class MusicListActivity extends AppCompatActivity {
                 }
             }
         }
+
     }
 
     public void Click_button_ok(View view) {
         if (!List_MusicToAdd.isEmpty()) {
-            String nameOfPlaylist = getIntent().getExtras().getString("name");
+            String titleOfPlaylist = getIntent().getExtras().getString("title");
 
             for(ModelPlaylist modelPlaylist: Const.List_ModelPlaylist) {
-                if (modelPlaylist.getTitle().equals(nameOfPlaylist)) {
+                if (modelPlaylist.getTitle().equals(titleOfPlaylist)) {
                     for (ModelMusic musicToAdd: List_MusicToAdd) {
                         if (!modelPlaylist.List_MusicOfPlaylist.contains(musicToAdd)) {
                             modelPlaylist.List_MusicOfPlaylist.add(musicToAdd);
@@ -127,6 +127,7 @@ public class MusicListActivity extends AppCompatActivity {
                     }
                 }
             }
+
             // DB 업데이트
             MainActivity.save_DB();
         }
