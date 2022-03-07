@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         // DBHelper 만들기
         init_tables();
         // 처음 한 번만 실행 - 기본 음악리스트 만들기
-        // init_allMusic();
+        init_allMusic();
         // DB 불러오기
         load_DB();
 
@@ -443,6 +443,10 @@ public class MainActivity extends AppCompatActivity {
     }
     private void load_DB() {
         SQLiteDatabase db = musicPlayerDBHelper.getReadableDatabase();
+
+        // App 내부 Const List 초기화
+        Const.List_ModelPlaylist.clear();
+        Const.List_ModelMusic.clear();
 
         Cursor cursorForAllMusic = db.rawQuery(MusicPlayerDBContract.SQL_SELECT_TBL_ALLMUSIC, null);
         while (cursorForAllMusic.moveToNext()) {
